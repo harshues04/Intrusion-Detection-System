@@ -1,7 +1,8 @@
 from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_restful import Resource
-from app import db, User, Prediction
+from app import db
+from app.models import User, Prediction
 from werkzeug.security import generate_password_hash, check_password_hash
 import pandas as pd
 import numpy as np
@@ -73,13 +74,11 @@ def init_routes(app, api):
             if file and file.filename.endswith('.txt'):
                 df = pd.read_csv(file, sep=',', names=columns + ['class', 'extra'], header=None)
                 df = df.drop(['class', 'extra'], axis=1)
-                # Preprocess
                 for col in ['protocol_type', 'service', 'flag']:
                     df[col] = encoders[col].transform(df[col])
                 X = scaler.transform(df)
                 predictions = model.predict(X)
                 result = 'Malicious' if predictions[0] == 1 else 'Normal'
-                # Save to DB
                 pred = Prediction(user_id=current_user.id, filename=file.filename, result=result)
                 db.session.add(pred)
                 db.session.commit()

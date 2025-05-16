@@ -9,7 +9,7 @@ api = Api()
 
 def create_app():
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'your-secret-key'
+    app.config['SECRET_KEY'] = 'your-secret-key'  # Replace with your generated key
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -18,10 +18,19 @@ def create_app():
     login_manager.login_view = 'login'
     api.init_app(app)
 
+    # Import models after app and db initialization
+    with app.app_context():
+        from app import models  # Import models module
+        db.create_all()
+
+    # Define user_loader for Flask-Login
+    from app.models import User
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+
+    # Import routes after models
     from app.routes import init_routes
     init_routes(app, api)
-
-    with app.app_context():
-        db.create_all()
 
     return app
