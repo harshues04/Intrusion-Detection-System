@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Prediction History</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Filename</th>
+            <th>Result</th>
+            <th>Timestamp</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for pred in predictions %}
+            <tr>
+                <td>{{ pred.filename }}</td>
+                <td>{{ pred.result }}</td>
+                <td>{{ pred.timestamp }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<h3>Attack Distribution</h3>
+<canvas id="attackChart"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+{% endblock %}
